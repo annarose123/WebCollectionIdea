@@ -1,0 +1,210 @@
+﻿@model IEnumerable<_1640WebApp.Data.Idea>
+
+@{
+    ViewData["Title"] = "List of ideas";
+}
+
+@{
+    Layout = "_Layout";
+}
+<head>
+    <link href="~/css/responsive.css" rel="stylesheet" />
+
+    <style>
+        .contain-create {
+            background-image: url('https://static.vecteezy.com/system/resources/thumbnails/015/287/575/original/purple-themed-particle-form-futuristic-neon-graphic-background-science-energy-3d-abstract-art-element-illustration-technology-artificial-intelligence-shape-theme-wallpaper-animation-free-video.jpg');
+            object-fit: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: 100% 100%;
+            position: absolute;
+            top: 49px;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: scroll !important;
+            padding: 5vw;
+            color: white;
+            font-weight: bold;
+            padding-bottom: 50px;
+        }
+
+
+        table {
+            color: white;
+            background-color: azure;
+            opacity: 85%;
+            min-height: 400px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .button1 {
+            background-color: forestgreen;
+            padding: 10px;
+            color: white;
+            margin: 10px 10px 10px 0px;
+        }
+
+        .button2 {
+            background-color: forestgreen;
+            padding: 6px;
+            color: white;
+        }
+
+        .button3 {
+            background-color: darkred;
+            padding: 6px;
+            color: white;
+        }
+
+            .button3 a:hover {
+                color: red !important;
+                margin: 3px;
+            }
+
+    </style>
+</head>
+
+
+<div class="contain-create">
+    <div style="height:50px;"></div>
+    <div class="row">
+        <div class="col-md-6 text-start">
+            <h1 class="text-white text-uppercase">@ViewBag.title</h1>
+        </div>
+        <div class="col-md-6 text-start">
+                <form method="get" action="@Url.Action("SearchAdmin", "Idea")" style="margin: 5px" >
+                    <input type="text" placeholder="Search here" name="searchString" style="padding: 6px 12px; border-radius: 12px; border: 1px solid gray;">
+                </form>            
+        </div>
+
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Title)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Text)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Catogories)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Submission)
+                </th>
+                <th>
+                    <div style="border-radius: 12px; border: 1px solid gray;">
+                        @Html.DropDownList("SelectLists", (IEnumerable<SelectListItem>)ViewBag.SelectList, new { @class = "form-control", @id = "filter-sort-admin" })
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <span class="truncated-text-Title">@item.Title</span>
+                    </td>
+                    <td>
+                        <span class="truncated-text-Text">@item.Text</span>
+                    </td>
+                    <td>
+                        @if (ViewBag.Cate != null)
+                        {
+                            foreach (var category in ViewBag.Cate)
+                            {
+                                if (item.CatogoryId == category.Id)
+                                {
+                                    <p>@category.Name</p>
+                                }
+                                if (item.CatogoryId == 0)
+                                {
+                                    <p>No category found</p>
+                                    break;
+                                }
+                            }
+                        }                       
+
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Submission.Id)
+                    </td>
+                    <td>
+                        @if (User.Identity.Name == item.CreatorEmail)
+                        {
+                            <a class="button2" asp-action="Edit" asp-route-id="@item.Id"><i class="fas fa-edit "></i></a>
+                        }
+                        else
+                        {
+                            <a class="button3" asp-action="Edit" asp-route-id="@item.Id"><i class="fas fa-edit "></i></a>
+                        }
+
+                         <a class="button2" asp-action="Details" asp-route-id="@item.Id"><i class="fas fa-info-circle"></i></a> 
+                        @if (User.Identity.Name == item.CreatorEmail)
+                        {
+                            <a class="button2" asp-action="Delete" asp-route-id="@item.Id"><i class="fas fa-trash-alt "></i></a>
+                        }
+                        else
+                        {
+                            <a class="button3" asp-action="Delete" asp-route-id="@item.Id"><i class="fas fa-trash-alt "></i></a>
+                        }
+                         <a class="button2" asp-action="ViewIdeaOnly" asp-controller="Idea" asp-route-ideaId="@item.Id"><i class="fas fa-eye"></i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <nav aria-label="...">
+        <ul class="pagination">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="?page=@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+
+@*chuyển đổi text dài quá số lượng sang ... sử dụng jQuery *@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.truncated-text-Title').each(function () {
+            var max_length = 10;
+            if ($(this).text().length > max_length) {
+                $(this).text($(this).text().substring(0, max_length) + '...');
+            }
+        });
+    });
+</script>
+@*chuyển đổi text dài quá số lượng sang ... sử dụng jQuery *@
+<script>
+    $(document).ready(function () {
+        $('.truncated-text-Text').each(function () {
+            var max_length = 50;
+            if ($(this).text().length > max_length) {
+                $(this).text($(this).text().substring(0, max_length) + '...');
+            }
+        });
+    });
+</script>
+@*sort*@
+<script>
+    $(document).ready(function () {
+        $('#filter-sort-admin').change(function () {
+            // lấy giá trị được chọn trong dropdown list
+            var type = $(this).val();
+            // truyền gía trị user đã chọn vào controler bằng đường link
+            // Index sẽ nhận và sử lý data
+            window.location.href = '@Url.Action("FilterAdmin", "Idea")?typeData=' + type;
+        });
+    });
+</script>
+
